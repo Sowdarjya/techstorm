@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 import tensorflow as tf
 import numpy as np
@@ -73,19 +73,16 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
 
 
 @app.post("/predict")
-async def predict_waste(file: UploadFile = File(...)):
+async def predict_waste(image_bytes: bytes = Body(...)):
     """
     Predict waste type from uploaded image
-    Expects image file from ESP32 Cam
+    Expects raw image bytes from ESP32 Cam
     """
     try:
-        # Validate file type
-        if not file.content_type.startswith('image/'):
+        # Validate that we have image data
+        if not image_bytes:
             raise HTTPException(
-                status_code=400, detail="File must be an image")
-
-        # Read image bytes
-        image_bytes = await file.read()
+                status_code=400, detail="No image data provided")
 
         # Preprocess image
         processed_image = preprocess_image(image_bytes)
