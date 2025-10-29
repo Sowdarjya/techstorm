@@ -10,3 +10,4 @@ wheels/
 .venv
 
 .vercel
+waste_segregation_model.ipynb
